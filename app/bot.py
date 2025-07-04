@@ -126,23 +126,38 @@ async def setup_bot():
     global application
     try:
         logger.info("Initializing Telegram bot application")
-        application = Application.builder().token(os.getenv("TELEGRAM_BOT_TOKEN")).build()
+        # Validate token
+        token = os.getenv("TELEGRAM_BOT_TOKEN")
+        if not token:
+            raise ValueError("TELEGRAM_BOT_TOKEN is not set")
+        
+        # Initialize Application with minimal configuration
+        application = Application.builder().token(token).build()
+        
+        # Add handlers
         application.add_handler(CommandHandler("start", start))
         application.add_handler(CallbackQueryHandler(button_callback))
         application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
-        await application.initialize()  # Explicitly initialize the application
+        
+        # Initialize application
+        await application.initialize()
+        logger.info("Application initialized successfully")
         
         # Set webhook
-        webhook_url = os.getenv("WEBHOOK_URL", "https://9443-2402-8100-2453-fbef-68c7-771c-e4a0-fd17.ngrok-free.app/telegram-webhook")
+        webhook_url = os.getenv("WEBHOOK_URL", "https://weatherbot-qqj4.onrender.com/telegram-webhook")
         async with httpx.AsyncClient() as client:
             logger.info(f"Setting webhook to {webhook_url}")
-            response = await client.get(f"https://api.telegram.org/bot{os.getenv('TELEGRAM_BOT_TOKEN')}/setWebhook?url={webhook_url}")
-            logger.info(f"Webhook set response: {response.json()}")
+            response = await client.get(f"https://api.telegram.org/bot{token}/setWebhook?url={webhook_url}")
+            response_data = response.json()
+            logger.info(f"Webhook set response: {response_data}")
+            if not response_data.get("ok"):
+                raise ValueError(f"Failed to set webhook: {response_data.get('description')}")
         
         # Start weather update loop
         asyncio.create_task(send_weather_updates())
     except Exception as e:
         logger.error(f"Error in setup_bot: {str(e)}")
+        raise  # Re-raise to ensure startup fails if bot initialization fails
 
 async def handle_update(update_dict):
     global application
@@ -150,7 +165,7 @@ async def handle_update(update_dict):
         logger.info(f"Received update: {update_dict}")
         if application is None:
             logger.error("Application not initialized")
-            return
+            raise ValueError("Application not initialized")
         update = Update.de_json(update_dict, application.bot)
         if update is None:
             logger.error("Failed to parse update")
