@@ -22,30 +22,75 @@ async def admin_panel():
         logger.info("Accessing admin panel")
         users = list(db["users"].find())
         user_rows = "".join(
-            f"<tr><td>{user['chat_id']}</td><td>{user.get('city', 'N/A')}</td><td>{user.get('is_subscribed', False)}</td><td>{user.get('is_blocked', False)}</td>"
-            f"<td><a href='/admin/block/{user['chat_id']}'>{'Unblock' if user.get('is_blocked', False) else 'Block'}</a> | "
-            f"<a href='/admin/delete/{user['chat_id']}' onclick='return confirm(\"Are you sure?\")'>Delete</a></td></tr>"
+            f"<tr class='border-b hover:bg-gray-100'><td class='py-2 px-4'>{user['chat_id']}</td>"
+            f"<td class='py-2 px-4'>{', '.join(user.get('city_history', ['N/A']))}</td>"
+            f"<td class='py-2 px-4'>{user.get('is_subscribed', False)}</td>"
+            f"<td class='py-2 px-4'>{user.get('is_blocked', False)}</td>"
+            f"<td class='py-2 px-4'><a href='/admin/block/{user['chat_id']}' class='text-blue-600 hover:underline'>{'Unblock' if user.get('is_blocked', False) else 'Block'}</a> | "
+            f"<a href='/admin/delete/{user['chat_id']}' class='text-red-600 hover:underline' onclick='return confirm(\"Are you sure?\")'>Delete</a></td></tr>"
             for user in users
         )
         return f"""
-        <html>
-            <head><title>Admin Panel</title></head>
-            <body>
-                <h1>Admin Panel - Weather Bot</h1>
-                <h2>Update Bot Settings</h2>
-                <form action="/admin/update-settings" method="post">
-                    <label>Telegram Bot Token:</label><br>
-                    <input type="text" name="telegram_bot_token" value="{os.getenv('TELEGRAM_BOT_TOKEN')}" required><br>
-                    <label>OpenWeatherMap API Key:</label><br>
-                    <input type="text" name="openweathermap_api_key" value="{os.getenv('OPENWEATHERMAP_API_KEY')}" required><br>
-                    <button type="submit">Update Settings</button>
-                </form>
-                <h2>Manage Users</h2>
-                <table border="1">
-                    <tr><th>Chat ID</th><th>City</th><th>Subscribed</th><th>Blocked</th><th>Actions</th></tr>
-                    {user_rows}
-                </table>
-            </body>
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Admin Panel - PrabhatWeatherBot</title>
+            <script src="https://cdn.tailwindcss.com"></script>
+            <style>
+                body {{ font-family: 'Inter', sans-serif; }}
+                .container {{ max-width: 1200px; margin: 0 auto; padding: 0 1rem; }}
+            </style>
+        </head>
+        <body class="bg-gray-100">
+            <nav class="bg-blue-600 text-white p-4">
+                <div class="container flex justify-between items-center">
+                    <h1 class="text-2xl font-bold">PrabhatWeatherBot Admin</h1>
+                    <a href="/" class="text-white hover:underline">Home</a>
+                </div>
+            </nav>
+            <div class="container py-8">
+                <div class="bg-white shadow-lg rounded-lg p-6 mb-8">
+                    <h2 class="text-xl font-semibold mb-4">Update Bot Settings</h2>
+                    <form action="/admin/update-settings" method="post" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">Telegram Bot Token</label>
+                            <input type="text" name="telegram_bot_token" value="{os.getenv('TELEGRAM_BOT_TOKEN')}" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700">OpenWeatherMap API Key</label>
+                            <input type="text" name="openweathermap_api_key" value="{os.getenv('OPENWEATHERMAP_API_KEY')}" required
+                                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring focus:ring-blue-500 focus:ring-opacity-50">
+                        </div>
+                        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700">Update Settings</button>
+                    </form>
+                </div>
+                <div class="bg-white shadow-lg rounded-lg p-6">
+                    <h2 class="text-xl font-semibold mb-4">Manage Users</h2>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Chat ID</th>
+                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">City History</th>
+                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Subscribed</th>
+                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Blocked</th>
+                                    <th class="py-3 px-4 text-left text-sm font-medium text-gray-500">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white divide-y divide-gray-200">
+                                {user_rows}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <footer class="bg-gray-800 text-white text-center p-4 mt-8">
+                <p>&copy; 2025 PrabhatWeatherBot. All rights reserved.</p>
+            </footer>
+        </body>
         </html>
         """
     except Exception as e:
