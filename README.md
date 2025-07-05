@@ -2,6 +2,13 @@
 
 A Telegram bot ([@PrabhatWeatherBot](https://t.me/PrabhatWeatherBot)) that provides weather updates for multiple cities, with subscription-based periodic updates and an admin panel for user management. Built with FastAPI, MongoDB Atlas, and the OpenWeatherMap API, it supports subscribing, querying weather for cities, retrieving weather history, and unsubscribing. The bot is deployed on Render with a webhook for real-time Telegram updates, using ngrok for local testing.
 
+## Demo
+Video Link : https://drive.google.com/file/d/1tLBsVbigonI1PHHkfEgss0M0bIsjzzQy/view?usp=sharing
+### Bot
+![Screenshot_2025-07-05-22-15-46-992_org telegram messenger~2](https://github.com/user-attachments/assets/ec00e7b1-c3c8-488d-ba0b-1eae2ce90fd1)
+### Admin Panel
+![image](https://github.com/user-attachments/assets/35e0ee31-ec61-46b4-9009-08019c9589f3)
+
 ## Features
 
 - **Subscribe/Unsubscribe**: Users can subscribe to receive periodic weather updates or unsubscribe to stop them.
